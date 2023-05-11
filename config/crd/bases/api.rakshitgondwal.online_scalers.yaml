@@ -50,6 +50,7 @@ spec:
               end:
                 type: integer
               replicas:
+                format: int32
                 type: integer
               start:
                 type: integer
