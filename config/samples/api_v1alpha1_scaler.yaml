@@ -9,4 +9,9 @@ metadata:
     app.kubernetes.io/created-by: scaler-operator
   name: scaler-sample
 spec:
-  # TODO(user): Add fields here
+  start: 5
+  end: 10
+  replicas: 5
+  deployments:
+    - name: abc
+      namespace: default
