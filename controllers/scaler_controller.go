@@ -67,15 +67,15 @@ func (r *ScalerReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctr
 			deployment := &v1.Deployment{}
 			err := r.Get(ctx, types.NamespacedName{
 				Namespace: deploy.Namespace,
-				Name: deploy.Name,
+				Name:      deploy.Name,
 			},
-				deployment,	
+				deployment,
 			)
 			if err != nil {
 				return ctrl.Result{}, err
 			}
 
-			if deployment.Spec.Replicas != &replicas{
+			if deployment.Spec.Replicas != &replicas {
 				err := r.Update(ctx, deployment)
 				if err != nil {
 					return ctrl.Result{}, err

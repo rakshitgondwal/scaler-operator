@@ -30,7 +30,7 @@ type ScalerSpec struct {
 
 	Start       int              `json:"start"`
 	End         int              `json:"end"`
-	Replicas    int32              `json:"replicas"`
+	Replicas    int32            `json:"replicas"`
 	Deployments []NamespacedName `json:"deployments"`
 }
 

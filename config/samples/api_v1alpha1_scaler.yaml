@@ -13,5 +13,5 @@ spec:
   end: 10
   replicas: 5
   deployments:
-    - name: abc
+    - name: nginx
       namespace: default
