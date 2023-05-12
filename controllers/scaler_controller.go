@@ -85,7 +85,7 @@ func scaleDeployment(scaler *apiv1alpha1.Scaler, r *ScalerReconciler, ctx contex
 			return err
 		}
 
-		if deployment.Spec.Replicas != &replicas {s
+		if deployment.Spec.Replicas != &replicas {
 			deployment.Spec.Replicas = &replicas
 			err := r.Update(ctx, deployment)
 			if err != nil {
