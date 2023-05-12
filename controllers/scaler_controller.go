@@ -18,6 +18,7 @@ package controllers
 
 import (
 	"context"
+	"log"
 	"time"
 
 	v1 "k8s.io/api/apps/v1"
@@ -49,7 +50,7 @@ type ScalerReconciler struct {
 // For more details, check Reconcile and its Result here:
 // - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.14.1/pkg/reconcile
 func (r *ScalerReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-
+	log.Printf("reconcile called")
 	scaler := &apiv1alpha1.Scaler{}
 	err := r.Get(ctx, req.NamespacedName, scaler)
 	if err != nil {
@@ -63,28 +64,36 @@ func (r *ScalerReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctr
 	currentHour := time.Now().UTC().Hour()
 
 	if currentHour >= startTime && currentHour <= endTime {
-		for _, deploy := range scaler.Spec.Deployments {
-			deployment := &v1.Deployment{}
-			err := r.Get(ctx, types.NamespacedName{
-				Namespace: deploy.Namespace,
-				Name:      deploy.Name,
-			},
-				deployment,
-			)
-			if err != nil {
-				return ctrl.Result{}, err
-			}
-
-			if deployment.Spec.Replicas != &replicas {
-				err := r.Update(ctx, deployment)
-				if err != nil {
-					return ctrl.Result{}, err
-				}
-			}
+		if err := scaleDeployment(scaler, r, ctx, replicas); err != nil {
+			return ctrl.Result{}, err
 		}
 	}
 
 	return ctrl.Result{RequeueAfter: time.Duration(30 * time.Second)}, nil
+}
+
+func scaleDeployment(scaler *apiv1alpha1.Scaler, r *ScalerReconciler, ctx context.Context, replicas int32) error {
+	for _, deploy := range scaler.Spec.Deployments {
+		deployment := &v1.Deployment{}
+		err := r.Get(ctx, types.NamespacedName{
+			Namespace: deploy.Namespace,
+			Name:      deploy.Name,
+		},
+			deployment,
+		)
+		if err != nil {
+			return err
+		}
+
+		if deployment.Spec.Replicas != &replicas {
+			deployment.Spec.Replicas = &replicas
+			err := r.Update(ctx, deployment)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
 }
 
 // SetupWithManager sets up the controller with the Manager.
